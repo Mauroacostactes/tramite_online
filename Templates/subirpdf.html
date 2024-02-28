@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Tramite Online - Presentacion</title>
+    <script>
+        // Función para ocultar los mensajes después de unos segundos
+        function hideMessages() {
+            var messages = document.getElementsByClassName('message');
+            for (var i = 0; i < messages.length; i++) {
+                messages[i].style.display = 'none';
+            }
+        }
+
+        // Ocultar automáticamente los mensajes después de 2.5 segundos
+        setTimeout(hideMessages, 2500);
+    </script>
+</head>
+<body>
+        <div class="banner2">
+        {% if current_user.is_authenticated %}
+            <p>Bienvenido: <strong>{{ current_user.login }}</strong> | <a href="{{ url_for('logout') }}">Cerrar sesión</a></p>
+        {% endif %}
+            <!-- Contenido del banner -->
+            
+            <div class="welcome">
+                <img src="{{ url_for('static', filename='bienvenido.png') }}" alt="tramite-online" class="tramite-online">
+            </div>
+         <img src="{{ url_for('static', filename='escudo_me.png') }}" alt="escudo" class="escudo">
+        </div>
+
+        <h1 class="page-title">Subir Nota de Solicitud</h1>
+
+        <form method="post" enctype="multipart/form-data" class="login-form">
+            <!-- Campo para el archivo PDF -->
+            <label for="file">Seleccionar archivo PDF:</label>
+            <input type="file" name="file" accept=".pdf" required>
+            <br>
+
+
+            <!-- Campos adicionales para el nuevo registro en la tabla pre_tramite_virt -->
+            <label for="partida">Partida:</label>
+            <input type="text" name="partida" id="partida" required>
+            <br>
+
+            <label for="jurisdiccion">Jurisdicción:</label>
+            <input type="text" name="jurisdiccion" id="jurisdiccion" required>
+            <br>
+
+            <label for="tipo_de_tramite">Tipo de Trámite:</label>
+            <select name="tipo_de_tramite" id="tipo_de_tramite" required>
+                <option value="Valuacion_Fiscal">Valuación Fiscal</option>
+                <option value="Reporte_Catastral">Reporte Catastral</option>
+                <option value="Copia_planos">Copia de Planos</option>
+            </select>
+            <br>
+            <br>
+
+            <button type="submit">Subir Archivo</button>
+
+            {% if error %}
+            <p class="message" style="color: red;">{{ error }}</p>
+            {% elif mensaje %}
+            <p class="message" style="color: green;">{{ mensaje }}</p>
+            {% endif %}
+        </form>
+
+              
+
+
+</body>
+</html>

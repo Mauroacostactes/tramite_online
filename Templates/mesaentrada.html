@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+   
+    <!-- Cambia "4.5.2" a una versión específica que sepas que funciona -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>  
+    
+
+    <title>Tramite Online - Mesa Entrada</title>
+    <script>
+        // Función para ocultar los mensajes después de unos segundos
+        function hideMessages() {
+            var messages = document.getElementsByClassName('message');
+            for (var i = 0; i < messages.length; i++) {
+                messages[i].style.display = 'none';
+            }
+        }
+
+        // Ocultar automáticamente los mensajes después de 2.5 segundos
+        setTimeout(hideMessages, 2500);
+    </script>
+</head>
+<body>
+    <div class="banner2">
+    {% if current_user.is_authenticated %}
+        <p>Bienvenido: <strong>{{ current_user.login }}</strong> | <a href="{{ url_for('logout') }}">Cerrar sesión</a></p>
+    {% endif %}
+        <!-- Contenido del banner -->
+        
+        <div class="welcome">
+            <img src="{{ url_for('static', filename='bienvenido.png') }}" alt="tramite-online" class="tramite-online">
+        </div>
+     <img src="{{ url_for('static', filename='escudo_me.png') }}" alt="escudo" class="escudo">
+    </div>
+
+
+    <h1 class="page-title">Pre Tramites</h1>
+      <form method="post" enctype="multipart/form-data" class="me-form">
+        <h2>Sin movimiento</h2>
+        <table id="tabla_sin_movimiento">
+            <thead>
+                <tr>
+                    <th style="display: none;">Id</th>
+                    <th>Partida</th>
+                    <th>Municipio</th>
+                    <th>Tipo de Trámite</th>
+                    <th>Fecha Creación</th>
+                    <th>Nombre y Apellido</th>
+                    <th>DNI/CUIL/CUIT</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for trámite in trámites %}
+                    {% if trámite.estado == 1 %}
+                    <tr class="estado-{{ trámite.estado }}">
+                        <td style="display: none;">{{ trámite.id_solicitud }}</td>
+                        <td>{{ trámite.partida }}</td>
+                        <td>{{ trámite.jurisdiccion }}</td>
+                        <td>{{ trámite.tipo_de_tramite }}</td>
+                        <td>{{ trámite.fecha_creacion }}</td>
+                        <td>{{ trámite.iniciador }}</td>
+                        <td>{{ trámite.nro_doc }}</td>
+                        <td>
+                            {% if trámite.estado == 1 %}
+                                Sin Novedad
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>    
+
+    <form method="post" enctype="multipart/form-data" class="me2-form">
+        <h2>Completados y Rechazados</h2>
+        <table id="tabla_completados_rechazados">
+            <thead>
+                <tr>
+                    <th style="display: none;">Id</th>
+                    <th>Partida</th>
+                    <th>Municipio</th>
+                    <th>Tipo de Trámite</th>
+                    <th>Fecha Creación</th>
+                    <th>Nombre y Apellido</th>
+                    <th>DNI/CUIL/CUIT</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for trámite in trámites %}
+                    {% if trámite.estado != 1 %}
+                    <tr class="estado-{{ trámite.estado }}">
+                        <td style="display: none;">{{ trámite.id_solicitud }}</td>
+                        <td>{{ trámite.partida }}</td>
+                        <td>{{ trámite.jurisdiccion }}</td>
+                        <td>{{ trámite.tipo_de_tramite }}</td>
+                        <td>{{ trámite.fecha_creacion }}</td>
+                        <td>{{ trámite.iniciador }}</td>
+                        <td>{{ trámite.nro_doc }}</td>
+                        <td>
+                            {% if trámite.estado == 2 %}
+                                Completo
+                            {% else %}
+                                Rechazado
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </form>
+
+
+    <script>
+        // Inicializar DataTable para la tabla sin movimiento
+        $('#tabla_sin_movimiento').DataTable({
+            "scrollY": "400px", // Altura máxima de la tabla antes de habilitar el scroll vertical
+            "scrollCollapse": true, // Hacer colapsar el espacio vacío si la tabla es más pequeña que la altura definida
+            "paging": false, // Desactivar paginación
+            "language": {
+                "Show":"Mostrar",
+                "search": "Buscar:",
+                "lengthMenu": "Mostrar _MENU_ registros por página",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "paginate": {
+                    "previous": "Anterior",
+                    "next": "Siguiente"
+                }
+            },
+            "rowCallback": function(row, data) {
+                var estado = data[7]; // Cambia el índice según la posición de la columna "estado" en tus datos
+                if (estado == "Sin Novedad") {
+                    $(row).addClass('sin-novedad');
+                }
+            }
+        });
+        // Inicializar DataTable para la tabla completados y rechazados
+        $('#tabla_completados_rechazados').DataTable({
+            "scrollY": "400px", // Altura máxima de la tabla antes de habilitar el scroll vertical
+            "scrollCollapse": true, // Hacer colapsar el espacio vacío si la tabla es más pequeña que la altura definida
+            "paging": false, // Desactivar paginación
+            "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+            "language": {
+                "Show":"Mostrar",
+                "search": "Buscar:",
+                "lengthMenu": "Mostrar _MENU_ registros por página",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "paginate": {
+                    "previous": "Anterior",
+                    "next": "Siguiente"
+                }
+            },
+            "rowCallback": function(row, data) {
+                var estado = data[7]; // Cambia el índice según la posición de la columna "estado" en tus datos
+                if (estado == "Completo") {
+                    $(row).addClass('completo');
+                } else if (estado == "Rechazado") {
+                    $(row).addClass('rechazado');
+                }   
+            }
+        });
+
+        // Función para mostrar la ventana modal con los datos del trámite
+        function mostrarModal(id_solicitud, partida, municipio, tipoTramite, fechaCreacion, nombreApellido, dniCuitCuil) {
+            // Rellenar los elementos de la ventana modal con los datos del trámite
+            $('#modalId_solicitud').text(id_solicitud);
+            $('#modalPartida').text(partida);
+            $('#modalMunicipio').text(municipio);
+            $('#modalTipoTramite').text(tipoTramite);
+            $('#modalFechaCreacion').text(fechaCreacion);
+            $('#modalNombreApellido').text(nombreApellido);
+            $('#modalDniCuitCuil').text(dniCuitCuil);
+            // Mostrar la ventana modal
+            $('#detalleTramiteModal').modal('show');
+        }
+
+        // Evento clic en las filas de la tabla
+        $(document).ready(function () {
+        $('table tbody tr').click(function () {
+            var id_solicitud = $(this).find('td:eq(0)').text();
+            var partida = $(this).find('td:eq(1)').text();
+            var municipio = $(this).find('td:eq(2)').text();
+            var tipoTramite = $(this).find('td:eq(3)').text();
+            var fechaCreacion = $(this).find('td:eq(4)').text();
+            var nombreApellido = $(this).find('td:eq(5)').text();
+            var dniCuitCuil = $(this).find('td:eq(6)').text();
+
+            mostrarModal(id_solicitud, partida, municipio, tipoTramite, fechaCreacion, nombreApellido, dniCuitCuil);
+            // Evento clic en el botón de descarga en la ventana modal
+            
+        });
+
+        $('#guardarObservacionesBtn').click(function () {
+             var id_solicitud = $('#modalId_solicitud').text();
+             var observaciones = $('#observaciones').val();
+             var estado = $('#estado').val();
+
+                // Enviar el formulario al servidor (puedes usar AJAX)
+                $.ajax({
+                        type: 'POST',
+                        url: '/guardar_observaciones',  // Ruta en tu servidor para manejar esta solicitud
+                        data: { id_solicitud: id_solicitud, observaciones: observaciones, estado: estado },
+                        success: function (response) {
+                        
+                            console.log(response);
+                            $('#observaciones').val('');
+                            $('#detalleTramiteModal').modal('hide'); // Cerrar la ventana modal
+                        },
+                        error: function (error) {
+                        
+                            console.error(error);
+                        }
+                    });
+         });
+
+        $('#descargarPdfBtn').click(function () {
+            var id_solicitud = $('#modalId_solicitud').text();
+            var partida = $('#modalPartida').text();
+            var tipoTramite = $('#modalTipoTramite').text();
+            var nombreApellido = $('#modalNombreApellido').text();
+
+            var urlDescargaPdf = 'http://localhost:8000/tramites/' +id_solicitud+' '+ partida + ' ' + tipoTramite +' '+nombreApellido +'.pdf';
+
+            // Redireccionar para iniciar la descarga
+            window.open(urlDescargaPdf, '_blank');
+            
+        });
+
+        
+     });
+    </script>
+
+
+    <div class="modal fade" id="detalleTramiteModal" tabindex="-1" role="dialog" aria-labelledby="detalleTramiteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detalleTramiteModalLabel">Detalles del Trámite</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p style="display: none;"><strong>id_solicitud:</strong> <span id="modalId_solicitud"></span></p>
+                    <p><strong>Partida:</strong> <span id="modalPartida"></span></p>
+                    <p><strong>Municipio:</strong> <span id="modalMunicipio"></span></p>
+                    <p><strong>Tipo de Trámite:</strong> <span id="modalTipoTramite"></span></p>
+                    <p><strong>Fecha Creación:</strong> <span id="modalFechaCreacion"></span></p>
+                    <p><strong>Nombre y Apellido:</strong> <span id="modalNombreApellido"></span></p>
+                    <p><strong>DNI/CUIL/CUIT:</strong> <span id="modalDniCuitCuil"></span></p>              
+                     
+                        <!-- Formulario para agregar observaciones y estado -->
+                    <form id="observacionesForm">
+                            <div class="form-group">
+                                <label for="observaciones">Observaciones:</label>
+                                <textarea class="form-control" id="observaciones" name="observaciones"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="estado">Estado:</label>
+                                <select class="form-control" id="estado" name="estado">
+                                    <option value="2">Completado</option>
+                                    <option value="4">Rechazado</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-primary" id="guardarObservacionesBtn">Guardar</button>
+                    </form>
+                        
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button><br><br>
+                    <button type="button" class="btn btn-primary" id="descargarPdfBtn">Descargar PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+</body>
+</html>
+
